@@ -169,7 +169,7 @@ def policy_evaluation(environment, tolerance, policy, gamma):
                     # End of list of acronyms and useful information
 
                     # value = value + (insert rest of expression here)
-                    value = value +  0
+                    value = value +  pi * (reward + gamma * V_next_state)
 
                 # Update our value table
                 np.put(value_table[i], j, value)
@@ -179,7 +179,7 @@ def policy_evaluation(environment, tolerance, policy, gamma):
                 # Define the stop condition so that the algorithm stops updating the policy once the the biggest
                 # difference between the current value and the old value is smaller than the tolerance variable.
                 #delta = (insert expression here)
-                delta = 0
+                delta = max(delta, abs(value_old - value))
 
     return value_table
 
@@ -221,13 +221,13 @@ def value_iteration(environment, tolerance, gamma):
                     # Update the value of the current state according to equation 4.10 in the book.
                     # Right now we are only calculating the values for each action, when we finish this we will get the maximum value!
                     # action_values[action] = (insert expression here)
-                    action_values[action] = 0
+                    action_values[action] = (reward + gamma * V_next_state)
                 
                 # Task 2.2
                 # INSERT CODE HERE
                 # Select the highest valued state/action. Tip: action_values.values() returns a list of all values for all actions.
                 # best_val =  (insert expression here)
-                best_val = 0
+                best_val = max(action_values.values())
 
                 # Update the table
                 np.put(value_table[i], j, best_val)
@@ -237,7 +237,22 @@ def value_iteration(environment, tolerance, gamma):
         # Define the stop condition so that the algorithm stops updating the value once the the biggest
         # difference between the current value and the old value is smaller than the tolerance variable.
         #delta = (insert expression here)
-        delta = 0
+        delta = delta = max(delta, abs(value_old - best_val))
+        for i in range(environment.grid_dim):
+            for j in range(environment.grid_dim):
+                value_old = value_table[i, j]
+        # Compute the new value as done previously
+        best_val = max(action_values.values())
+
+        # Update the value table
+        value_table[i, j] = best_val
+
+        # Calculate the difference from the old value
+        diff = abs(value_old - best_val)
+
+        # Update delta if this difference is the largest seen this iteration
+        delta = max(delta, diff)
+
 
     # Now that we have all state values, we can define the optimal policy
     policy = {}
